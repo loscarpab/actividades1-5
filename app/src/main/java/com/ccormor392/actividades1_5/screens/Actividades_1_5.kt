@@ -1,6 +1,5 @@
 package com.ccormor392.actividades1_5.screens
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +15,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -188,33 +187,41 @@ A nivel funcional no permitas que se introduzcan caracteres que invaliden un nú
 @Composable
 fun PreviewActividad5(){
     var importe by rememberSaveable{ mutableStateOf("")}
-    Actividad5(importe, onValueChange = { NewValue ->
-        var texto = NewValue
-        if (texto.contains(","))
-            texto = NewValue.replace(',', '.')
-        if (texto.count{ c -> c == '.'} <= 1 && texto.isDigitsOnly())
-            importe = texto
-    })
+    Actividad5(importe, onValueChange = { NewValue -> importe = corregirTexto(NewValue, importe) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Actividad5(value: String,
               onValueChange: (String) -> Unit) {
-
-    var color by rememberSaveable{ mutableStateOf(Color.Green)}
-
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()){
         OutlinedTextField(
             value = value,
             onValueChange = { onValueChange(it) },
             modifier = Modifier
                 .padding(15.dp)
-                .border(5.dp, color)
-                .onFocusChanged { color = if (it.isFocused) Color.Green else Color.Red }
                 .focusable(true),
-            label = { Text(text = "Importe") }
+            label = { Text(text = "Importe") },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Yellow
+            )
         )
     }
+}
+
+/**
+ * Esta funcion sirve para formatear NewValue para que solo admita un '.' y numeros
+ * @param OldValue es el String que teniamos antes de agregarle el nuevo caracter
+ * @param NewValue es OldValue pero con el nuevo caracter
+ * @return si el nuevo caracter añadido en NewValue es valido returna NewValue si no es correcto retorna OldValue
+ */
+fun corregirTexto(NewValue:String, OldValue:String):String{
+    var texto = NewValue
+    if (texto.contains(","))
+        texto = NewValue.replace(',', '.')
+    if (texto.count{ c -> c == '.'} <= 1 && texto.replace(".", "").isDigitsOnly())
+        return texto
+    return OldValue
 }
 
